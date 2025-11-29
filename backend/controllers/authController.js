@@ -1,49 +1,60 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+
+const User = require('../models/User');
+const { body, validationResult } = require('express-validator');
+
+router.post('/register',
+  [
+    body('name').notEmpty(),
+    body('email').isEmail(),
+    body('password').isLength({ min: 6 })
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    // ... controller logic
+  }
+);
 
 exports.register = async (req, res) => {
   const { name, email, password } = req.body;
-  try {
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: 'User already exists' });
+  if (!name || !email || !password) return res.status(400).json({ message: 'All fields required' });
 
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
-    const user = await User.create({ name, email, password: hash });
+  const existing = await User.findOne({ email });
+  if (existing) return res.status(400).json({ message: 'User already exists' });
 
-    return res.status(201).json({ message: 'User created', user: { id: user._id, name: user.name, email: user.email } });
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(password, salt);
+
+  const user = await User.create({ name, email, password: hash });
+  return res.status(201).json({ message: 'User created', user: { id: user._id, name: user.name, email: user.email } });
 };
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+  if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+  const user = await User.findOne({ email });
+  if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 
-    const payload = { id: user._id, email: user.email, name: user.name };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES || '7d' });
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    });
+  const payload = { id: user._id, email: user.email, name: user.name };
+  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES || '7d' });
 
-    return res.json({ message: 'Logged in', user: { id: user._id, name: user.name, email: user.email } });
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
+  res.cookie('jwt', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 1000 * 60 * 60 * 24 * 7
+  });
+
+  return res.json({ message: 'Logged in', user: { id: user._id, name: user.name, email: user.email } });
 };
 
 exports.logout = (req, res) => {
-  res.clearCookie('jwt');
-  res.json({ message: 'Logged out' });
+  res.clearCookie('jwt', { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+  return res.json({ message: 'Logged out' });
 };
