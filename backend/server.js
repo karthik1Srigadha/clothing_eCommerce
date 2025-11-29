@@ -5,7 +5,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const allowedOrigins = [
   "http://localhost:5173",
-  "clothing-e-commerce-six.vercel.app"
+  "https://clothing-e-commerce-six.vercel.app/"
 ];
 const app = express();
 connectDB();
