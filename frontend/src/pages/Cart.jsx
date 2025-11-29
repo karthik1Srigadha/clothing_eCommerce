@@ -20,7 +20,7 @@ export default function Cart() {
     </div>
   ))}
 
-  <a href="/checkout" className="btn">Checkout</a>
+  <a href="/checkOut" className="btn">Checkout</a>
 </div>
 
   );
