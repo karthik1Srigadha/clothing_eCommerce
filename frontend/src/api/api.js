@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: "https://clothing-ecommerce-k9ox.onrender.com/api",
   withCredentials: true,
 });
 
