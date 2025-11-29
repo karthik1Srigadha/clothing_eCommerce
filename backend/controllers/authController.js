@@ -2,20 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
-const { body, validationResult } = require('express-validator');
 
-router.post('/register',
-  [
-    body('name').notEmpty(),
-    body('email').isEmail(),
-    body('password').isLength({ min: 6 })
-  ],
-  (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-    // ... controller logic
-  }
-);
 
 exports.register = async (req, res) => {
   const { name, email, password } = req.body;
