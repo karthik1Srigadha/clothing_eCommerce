@@ -12,18 +12,18 @@ export const CartProvider = ({ children }) => {
     return stored ? JSON.parse(stored) : [];
   });
 
-  // save guest cart
+  // Save GUEST cart
   useEffect(() => {
     if (!user) localStorage.setItem("guestCart", JSON.stringify(cart));
   }, [cart, user]);
 
-  // merge guest cart after login
+  // Merge guest cart AFTER login
   useEffect(() => {
     const merge = async () => {
       if (user) {
         const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
         await api.post("/cart/merge", {
-          items: guestCart.map((i) => ({
+          items: guestCart.map(i => ({
             productId: i.productId,
             size: i.size,
             qty: i.qty,
@@ -45,45 +45,81 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = async (product, size) => {
-
-  // size must be selected
-  if (!size) {
-    alert("Please select a size.");
-    return;
-  }
-
-  if (user) {
-    await api.post("/cart/add", {
-      productId: product._id,
-      size,
-      qty: 1,
-    });
-    fetchCart();
-    alert("Added to cart!"); // 🔥 FEEDBACK
-  } else {
-    const exists = cart.find(
-      (i) => i._id === product._id && i.size === size
-    );
-
-    if (exists) {
-      exists.qty += 1;
-    } else {
-      cart.push({
-        ...product,
-        productId: product._id,
-        qty: 1,
-        size,
-      });
+    if (!size) {
+      alert("Select a size");
+      return;
     }
 
-    setCart([...cart]);
-    alert("Added to cart!"); // 🔥 FEEDBACK
-  }
-};
+    if (user) {
+      await api.post("/cart/add", {
+        productId: product._id,
+        size,
+        qty: 1,
+      });
+      fetchCart();
+    } else {
+      const exists = cart.find(i => i._id === product._id && i.size === size);
+      if (exists) exists.qty += 1;
+      else cart.push({ ...product, productId: product._id, qty: 1, size });
+
+      setCart([...cart]);
+    }
+  };
+
+  const updateCartQty = async (productId, size, newQty) => {
+    if (user) {
+      await api.post("/cart/add", {
+        productId,
+        size,
+        qty: newQty - (cart.find(i => (i.productId ?? i._id) === productId && i.size === size)?.qty || 0)
+      });
+      fetchCart();
+    } else {
+      const updated = cart.map((i) =>
+        i.productId === productId && i.size === size
+          ? { ...i, qty: newQty }
+          : i
+      );
+      setCart(updated);
+      localStorage.setItem("guestCart", JSON.stringify(updated));
+    }
+  };
+
+  const removeFromCart = async (productId, size) => {
+    if (user) {
+      const updated = cart.filter(
+        (i) => !(i.product.equals(productId) && i.size === size)
+      );
+      await api.post("/cart/merge", {
+        items: updated.map((i) => ({
+          productId: i.productId ?? i._id,
+          size: i.size,
+          qty: i.qty
+        }))
+      });
+      fetchCart();
+    } else {
+      const updated = cart.filter(
+        (i) => !(i.productId === productId && i.size === size)
+      );
+      setCart(updated);
+      localStorage.setItem("guestCart", JSON.stringify(updated));
+    }
+  };
 
   return (
-    <CartContext.Provider value={{ cart, setCart, addToCart, fetchCart }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        setCart,
+        addToCart,
+        fetchCart,
+        updateCartQty,      // ✅ ADDED HERE
+        removeFromCart      // ✅ ADDED HERE
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
+

@@ -60,3 +60,42 @@ exports.mergeCart = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+exports.updateQty = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { productId, size, qty } = req.body;
+
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) return res.json({ items: [] });
+
+    const item = cart.items.find(i => i.product.equals(productId) && i.size === size);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+
+    item.qty = qty;
+
+    await cart.save();
+    res.json(cart);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+exports.removeItem = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { productId, size } = req.body;
+
+    let cart = await Cart.findOne({ user: userId });
+    if (!cart) return res.json({ items: [] });
+
+    cart.items = cart.items.filter(
+      i => !(i.product.equals(productId) && i.size === size)
+    );
+
+    await cart.save();
+    res.json(cart);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
