@@ -9,19 +9,18 @@ connectDB();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: "*",
-}));
+app.use(
+  cors({
+    origin: [
+      process.env.CLIENT_URL,
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://clothing-e-commerce-six.vercel.app"
+    ],
+    credentials: true,
+  })
+);
 
-
-
-// Routes
-
-
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
-}));
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
