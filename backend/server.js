@@ -5,7 +5,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://clothing-e-commerce-six.vercel.app"
+  "clothing-e-commerce-six.vercel.app"
 ];
 const app = express();
 connectDB();
@@ -14,15 +14,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true,
 }));
 
