@@ -4,8 +4,8 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const allowedOrigins = [
-  "https://clothing-e-commerce-six.vercel.app", // <-- YOUR PRODUCTION FRONTEND
-  "http://localhost:5173",                      // <-- LOCAL DEV
+  "http://localhost:5173",
+  "https://clothing-e-commerce-six.vercel.app"
 ];
 const app = express();
 connectDB();
@@ -15,11 +15,17 @@ app.use(cookieParser());
 
 
 
-
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
+
 
 
 
