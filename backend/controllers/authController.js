@@ -98,3 +98,11 @@ exports.logout = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+exports.me = async (req, res) => {
+  try {
+    res.json({ user: req.user }); // user available from JWT middleware
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+

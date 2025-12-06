@@ -1,33 +1,44 @@
-import { createContext, useState } from "react";
-import api from "../api/api"; // Make sure this file exists as axios instance
+import { createContext, useState, useEffect } from "react";
+import api from "../api/api";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // ================== LOGIN ==================
+  // Load user on refresh
+  useEffect(() => {
+    checkLoggedIn();
+  }, []);
+
+  const checkLoggedIn = async () => {
+    try {
+      const res = await api.get("/auth/me");
+      setUser(res.data.user);
+    } catch {
+      setUser(null);
+    }
+  };
+
   const login = async (email, password) => {
     try {
-      const res = await api.post("/auth/login", { email, password }); // Backend API call
-      setUser(res.data.user); // Set login user only if credentials are valid
+      const res = await api.post("/auth/login", { email, password });
+      setUser(res.data.user);
       return { success: true };
     } catch (err) {
-      return { success: false, message: err.response?.data?.message || "Login failed" };
+      return { success: false, message: err.response?.data?.message };
     }
   };
 
-  // ================== REGISTER ==================
   const registerUser = async (name, email, password) => {
     try {
-      const res = await api.post("/auth/register", { name, email, password });
-      return { success: true, message: "Registered successfully" };
+      await api.post("/auth/register", { name, email, password });
+      return { success: true };
     } catch (err) {
-      return { success: false, message: err.response?.data?.message || "Registration failed" };
+      return { success: false, message: err.response?.data?.message };
     }
   };
 
-  // ================== LOGOUT ==================
   const logout = async () => {
     await api.post("/auth/logout");
     setUser(null);

@@ -61,9 +61,7 @@ export default function Cart() {
 
                 {/* REMOVE BUTTON */}
                 <button
-                  onClick={() =>
-                    removeFromCart(item.productId ?? item._id, item.size)
-                  }
+                  onClick={() => removeFromCart(item.product, item.size)}
                   className="btn-outline"
                   style={{
                     marginLeft: "10px",

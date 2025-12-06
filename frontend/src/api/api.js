@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://clothing-ecommerce-k9ox.onrender.com/api",   // must end with /api
+  baseURL: "http://localhost:5000/api",   // must end with /api
   withCredentials: true,
 });
 
