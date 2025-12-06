@@ -15,12 +15,11 @@ export default function Cart() {
         <p style={{ fontSize: "18px", opacity: 0.7 }}>Your cart is empty.</p>
       )}
 
-      {/* CART ITEMS */}
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {cart.map((item) => (
           <div
             className="cart-item"
-            key={(item.productId ?? item._id) + item.size}
+            key={item.product + item.size}
             style={{
               display: "flex",
               justifyContent: "space-between",
@@ -35,16 +34,11 @@ export default function Cart() {
               <h4 style={{ marginBottom: 6 }}>{item.name}</h4>
               <p style={{ margin: 0 }}>Size: {item.size}</p>
 
-              {/* QTY UPDATE */}
               <div style={{ marginTop: 5 }}>
                 <select
                   value={item.qty}
                   onChange={(e) =>
-                    updateCartQty(
-                      item.productId ?? item._id,
-                      item.size,
-                      Number(e.target.value)
-                    )
+                    updateCartQty(item.product, item.size, Number(e.target.value)) // ✔ Correct ID
                   }
                   style={{
                     padding: "5px 10px",
@@ -59,9 +53,8 @@ export default function Cart() {
                   ))}
                 </select>
 
-                {/* REMOVE BUTTON */}
                 <button
-                  onClick={() => removeFromCart(item.product, item.size)}
+                  onClick={() => removeFromCart(item.product, item.size)}  // ✔ Correct ID
                   className="btn-outline"
                   style={{
                     marginLeft: "10px",
@@ -84,7 +77,6 @@ export default function Cart() {
         ))}
       </div>
 
-      {/* TOTAL + CHECKOUT */}
       {cart.length > 0 && (
         <div
           style={{
@@ -101,7 +93,7 @@ export default function Cart() {
           <h3 style={{ margin: 0 }}>Total: ₹{total}</h3>
 
           <a
-            href="/checkOut"
+            href="/checkout"
             className="btn"
             style={{
               padding: "10px 20px",
