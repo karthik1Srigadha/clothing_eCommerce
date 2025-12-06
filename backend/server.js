@@ -14,10 +14,16 @@ app.use(cookieParser());
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://clothing-e-commerce-six.vercel.app" // frontend url
+    "https://clothing-e-commerce-six.vercel.app" // frontend
   ],
-  credentials: true,
+  credentials: true,            // must include
+  methods: ["GET","POST","PUT","DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+// Required for cross-site cookies 🚀
+app.set("trust proxy", 1);
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Credentials", "true");
   next();

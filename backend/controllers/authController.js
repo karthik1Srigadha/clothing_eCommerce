@@ -51,11 +51,13 @@ exports.login = async (req, res) => {
 
     res.cookie("jwt", token, {
   httpOnly: true,
-  secure: true,               // required on https hosting
-  sameSite: "none",           // <— THE MOST IMPORTANT FIX
-  path: "/",                  // <— ensures cookie valid for whole domain
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  secure: true,
+  sameSite: "none",
+  path: "/",
+  domain: "clothing-ecommerce-k9ox.onrender.com", // 👈 ADD THIS
+  maxAge: 7 * 24 * 60 * 60 * 1000
 });
+
 
 
     return res.json({
@@ -76,8 +78,10 @@ exports.logout = async (req, res) => {
   httpOnly: true,
   secure: true,
   sameSite: "none",
-  path: "/",    // <— required
+  path: "/",
+  domain: "clothing-ecommerce-k9ox.onrender.com", // 👈 add here too
 });
+
 
 
     res.json({ message: "Logged out" });
