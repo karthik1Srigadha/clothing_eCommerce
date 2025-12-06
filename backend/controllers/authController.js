@@ -1,10 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");   // 🔥 Correct — capital U
+const User = require("../models/user");
 
-// =========================
-// REGISTER
-// =========================
+// ========================= REGISTER =========================
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -18,29 +16,20 @@ exports.register = async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      name,
-      email,
-      password: hashed,
+    const user = await User.create({ name, email, password: hashed });
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: { id: user._id, name: user.name, email: user.email }
     });
 
-    return res.status(201).json({
-      message: "User created successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
   } catch (err) {
     console.error("Register error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
-// =========================
-// LOGIN
-// =========================
+// ========================= LOGIN =========================
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -57,52 +46,48 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES || "7d" }
+      { expiresIn: "7d" }
     );
 
     res.cookie("jwt", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 7,
+      secure: true,          // required for https (Render)
+      sameSite: "none",      // required for cross-domain cookie
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return res.json({
       message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user: { id: user._id, name: user.name, email: user.email }
     });
+
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
-// =========================
-// LOGOUT
-// =========================
+// ========================= LOGOUT =========================
 exports.logout = async (req, res) => {
   try {
     res.clearCookie("jwt", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
     });
 
     res.json({ message: "Logged out" });
-  } catch (err) {
-    console.error("Logout error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-exports.me = async (req, res) => {
-  try {
-    res.json({ user: req.user }); // user available from JWT middleware
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
+// ========================= ME (AUTH CHECK) =========================
+exports.me = async (req, res) => {
+  try {
+    res.json({ user: req.user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
