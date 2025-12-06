@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");   // 🔥 Correct — capital U
+const User = require("../models/user");   // 🔥 Correct — capital U
 
 // =========================
 // REGISTER
