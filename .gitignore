@@ -1,21 +1,17 @@
-# Node modules
+# Ignore backend node modules
 backend/node_modules/
+
+# Ignore frontend node modules
 frontend/node_modules/
 
-# Env files
+# Ignore environments
 backend/.env
 frontend/.env
 
-# Dist
+# Ignore build output
 frontend/dist/
 backend/dist/
 
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
-
-# System files
+# System stuff
 .DS_Store
 Thumbs.db
