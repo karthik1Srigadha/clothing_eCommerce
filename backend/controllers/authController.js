@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const isProduction = process.env.NODE_ENV === "production";
+const User = require("../models/User");
+const isProd = process.env.NODE_ENV === "production";
 
 
 
@@ -54,9 +54,9 @@ exports.login = async (req, res) => {
 
    res.cookie("jwt", token, {
   httpOnly: true,
-  secure: true,
-  sameSite: "none",
-  domain: ".onrender.com",   // <<< IMPORTANT UPDATE
+  secure: isProd,               // secure only in production
+  sameSite: isProd ? "none" : "lax",
+  domain: isProd ? ".onrender.com" : undefined, // don't set domain locally
   path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000
 });
@@ -79,11 +79,11 @@ exports.login = async (req, res) => {
 // ========================= LOGOUT =========================
 exports.logout = async (req, res) => {
   try {
-   res.clearCookie("jwt", {
+  res.clearCookie("jwt", {
   httpOnly: true,
-  secure: true,
-  sameSite: "none",
-  domain: ".onrender.com",
+  secure: isProd,
+  sameSite: isProd ? "none" : "lax",
+  domain: isProd ? ".onrender.com" : undefined,
   path: "/"
 });
 
