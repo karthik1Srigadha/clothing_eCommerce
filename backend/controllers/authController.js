@@ -1,6 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const isProduction = process.env.NODE_ENV === "production";
+
+
 
 // ========================= REGISTER =========================
 exports.register = async (req, res) => {
@@ -51,12 +54,12 @@ exports.login = async (req, res) => {
 
     res.cookie("jwt", token, {
   httpOnly: true,
-  secure: true,
-  sameSite: "none",
+  secure: isProduction,              // TRUE only on production
+  sameSite: isProduction ? "none" : "lax",
   path: "/",
-  domain: "clothing-ecommerce-k9ox.onrender.com", // 👈 ADD THIS
-  maxAge: 7 * 24 * 60 * 60 * 1000
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 });
+
 
 
 
@@ -76,11 +79,11 @@ exports.logout = async (req, res) => {
   try {
     res.clearCookie("jwt", {
   httpOnly: true,
-  secure: true,
-  sameSite: "none",
-  path: "/",
-  domain: "clothing-ecommerce-k9ox.onrender.com", // 👈 add here too
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  path: "/"
 });
+
 
 
 
