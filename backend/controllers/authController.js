@@ -52,13 +52,15 @@ exports.login = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.cookie("jwt", token, {
+   res.cookie("jwt", token, {
   httpOnly: true,
-  secure: isProduction,              // TRUE only on production
-  sameSite: isProduction ? "none" : "lax",
+  secure: true,
+  sameSite: "none",
+  domain: ".onrender.com",   // <<< IMPORTANT UPDATE
   path: "/",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  maxAge: 7 * 24 * 60 * 60 * 1000
 });
+
 
 
 
@@ -77,10 +79,11 @@ exports.login = async (req, res) => {
 // ========================= LOGOUT =========================
 exports.logout = async (req, res) => {
   try {
-    res.clearCookie("jwt", {
+   res.clearCookie("jwt", {
   httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? "none" : "lax",
+  secure: true,
+  sameSite: "none",
+  domain: ".onrender.com",
   path: "/"
 });
 
