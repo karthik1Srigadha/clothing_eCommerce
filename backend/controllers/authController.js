@@ -50,11 +50,13 @@ exports.login = async (req, res) => {
     );
 
     res.cookie("jwt", token, {
-      httpOnly: true,
-      secure: true,          // required for https (Render)
-      sameSite: "none",      // required for cross-domain cookie
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+  httpOnly: true,
+  secure: true,               // required on https hosting
+  sameSite: "none",           // <— THE MOST IMPORTANT FIX
+  path: "/",                  // <— ensures cookie valid for whole domain
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
+
 
     return res.json({
       message: "Login successful",
@@ -71,10 +73,12 @@ exports.login = async (req, res) => {
 exports.logout = async (req, res) => {
   try {
     res.clearCookie("jwt", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-    });
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: "/",    // <— required
+});
+
 
     res.json({ message: "Logged out" });
 
